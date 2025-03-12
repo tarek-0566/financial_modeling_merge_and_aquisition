@@ -70,7 +70,7 @@ The final dataset includes both the original and predicted `DEC 2023` values.
 # MAML-Based Financial Indicator Prediction Model
 
 ## Overview
-This repository contains an implementation of **Model-Agnostic Meta-Learning (MAML)** for predicting **buy-side financial indicators** based on **sell-side financial indicators** across multiple deals. The model is designed to handle **multi-task learning**, where each financial deal is treated as a separate task.
+The second part of the project uses **Model-Agnostic Meta-Learning (MAML)** for predicting **buy-side financial indicators** based on **sell-side financial indicators** across multiple deals. The model is designed to handle **multi-task learning**, where each financial deal is treated as a separate task.
 
 ## Features
 - **Multi-task Learning Approach**: Each financial deal is considered a separate learning task.
