@@ -1,4 +1,4 @@
-# Financial Forecasting with Linear Regression
+# Financial Forecasting
 
 ## Overview
 This project uses **KNN, Lasso, Ridge, Linear Regression** to predict financial metrics (e.g., `DEC 2023`) based on historical data (`DEC 2019–2022`). It handles cases where some rows already have `DEC 2023` values by:
