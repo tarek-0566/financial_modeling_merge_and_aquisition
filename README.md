@@ -66,10 +66,11 @@ The final dataset includes both the original and predicted `DEC 2023` values.
    ```bash
    git clone ...
 
+
 # MAML-Based Financial Indicator Prediction Model
 
 ## Overview
-Second part of the project uses **Model-Agnostic Meta-Learning (MAML)** for predicting **buy-side financial indicators** based on **sell-side financial indicators** across multiple deals. The model is designed to handle **multi-task learning**, where each financial deal is treated as a separate task.
+This repository contains an implementation of **Model-Agnostic Meta-Learning (MAML)** for predicting **buy-side financial indicators** based on **sell-side financial indicators** across multiple deals. The model is designed to handle **multi-task learning**, where each financial deal is treated as a separate task.
 
 ## Features
 - **Multi-task Learning Approach**: Each financial deal is considered a separate learning task.
@@ -103,26 +104,35 @@ pip install pandas numpy torch tensorflow scikit-learn xgboost statsmodels matpl
 4. **Standardization:** Normalize sell-side and buy-side indicators for each deal.
 5. **Task Creation:** Each financial deal is treated as an independent learning task.
 
+## Task Preparation
+Each financial deal is treated as a separate task. Standardization is applied to both **sell-side** and **buy-side** indicators using `StandardScaler`.
+
 ```python
-# Load dataset
-file_path = "path_to_file.xlsx"
-df = pd.read_excel(file_path)
+# Prepare structured tasks for MAML
+from sklearn.preprocessing import StandardScaler
 
-# Replace "-" with NaN
-df.replace("-", np.nan, inplace=True)
+# Create tasks
+tasks = []
+task_scalers = {}
 
-# Convert financial columns to numeric
-df[sell_side_cols + buy_side_cols] = df[sell_side_cols + buy_side_cols].apply(pd.to_numeric, errors='coerce')
-
-# Drop missing values
-df.dropna(subset=sell_side_cols + buy_side_cols, inplace=True)
+for deal_id in df_filtered['N'].unique():
+    deal_data = df_filtered[df_filtered['N'] == deal_id]
+    X_sell = deal_data[sell_side_cols].values
+    Y_buy = deal_data[buy_side_cols].values
+    scaler_sell, scaler_buy = StandardScaler(), StandardScaler()
+    X_scaled, Y_scaled = scaler_sell.fit_transform(X_sell), scaler_buy.fit_transform(Y_buy)
+    tasks.append((X_scaled, Y_scaled))
+    task_scalers[deal_id] = scaler_buy
 ```
 
 ## Model Architecture
 The **Memory-Augmented Neural Network (MANN)** with **feedforward layers** is implemented using TensorFlow.
 
 ```python
-class MANN_fnn(tf.keras.Model):
+import tensorflow as tf
+from tensorflow.keras import layers, Model
+
+class MANN_fnn(Model):
     def __init__(self, input_dim, output_dim, memory_size=400, embedding_dim=128):
         super(MANN_fnn, self).__init__()
         self.memory_keys = tf.Variable(tf.random.normal([memory_size, input_dim]), trainable=False)
@@ -137,6 +147,41 @@ class MANN_fnn(tf.keras.Model):
             layers.LayerNormalization()
         ])
         self.fc = layers.Dense(output_dim)
+```
+
+## Training the Model
+The model is trained using an **advanced strategy** with a **cosine decay learning rate schedule**, **temporal regularization**, and **early stopping**.
+
+```python
+def train_mann_fnn(model, train_tasks, val_tasks, epochs=100):
+    optimizer = tf.keras.optimizers.AdamW(learning_rate=1e-3, weight_decay=1e-5)
+```
+
+## Model Evaluation
+### R² Score Calculation
+The model is evaluated using **R² score** for multiple validation tasks.
+
+```python
+from sklearn.metrics import r2_score
+r2_scores = []
+for i, task_id in enumerate(val_sample_ids):
+    X_test, Y_true = val_tasks[i]
+    Y_pred = maml_regressor.predict(X_test)
+    r2 = r2_score(Y_true, Y_pred)
+    r2_scores.append(r2)
+print(f"Average Validation R² Score: {np.mean(r2_scores):.4f}")
+```
+
+### Residual Analysis
+Residual analysis helps assess model performance by plotting actual vs. predicted errors.
+
+```python
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12, 6))
+plt.axhline(0, color='black', linestyle='--')
+plt.xlabel("Sample ID")
+plt.ylabel("Residual (Actual - Predicted)")
+plt.show()
 ```
 
 ## Conclusion
