@@ -6,7 +6,7 @@ First part of this project uses **KNN, Lasso, Ridge, Linear Regression** to pred
 - Predicting missing `DEC 2023` values.
 - Combining the results into a complete dataset.
 
-The project also evaluates the model's performance using metrics like **R² Score** and **Median Absolute Error (MedAE)**.
+The project also evaluates the model's performance using metrics like **R² Score** and **Median Absolute Error (MedAE)** or **Mean absolute error**.
 
 ---
 
