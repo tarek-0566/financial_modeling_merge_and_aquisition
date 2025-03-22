@@ -22,7 +22,6 @@ Where:
 - $` w_1, w_2, \dots, w_n `$: Coefficients (weights) learned during training.
 - $` b `$: Intercept (bias term).
 
-
 ---
 
 ## Workflow
