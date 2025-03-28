@@ -11,7 +11,6 @@ The project also evaluates the model's performance using metrics like **R² Scor
 ---
 
 ## Mathematical Formulation
-
 ### Linear Regression Equation
 The predicted target value ($` \hat{y} `$) is calculated as:
 ```math
